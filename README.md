@@ -39,3 +39,15 @@ Cada envío tiene esta forma:
 ## Publicar
 Suba la carpeta tal cual a Azure Static Web Apps, Netlify, GitHub Pages o cualquier hosting estático.
 SharePoint no sirve para esto porque no ejecuta archivos HTML.
+
+## Enlaces amigables (para QR y correos)
+`404.html` traduce rutas cortas a la encuesta correcta:
+- `/pasajeros/b-banos` → Pasajeros, ubicación "Concourse B · Baños" · `/pasajeros/curbside` → "Curbside"
+  Zonas: `a`, `b`, `c`, `d`, `terminal`, `publica`, `esteril` · Áreas: `banos`, `puertas`, `food-court`, `counters`, `equipaje`, `curbside`, `estacionamiento`, `pasillos`, `salas`
+  Cualquier otro slug se convierte en texto (`/pasajeros/torre-norte` → "Torre Norte").
+- `/socios` · `/personal` · `/limpieza` → socios comerciales, personal del aeropuerto, personal de limpieza
+- Agregue `/en` al final para abrir en inglés: `/socios/en`, `/pasajeros/b-banos/en`
+
+Dominio propio: agregue un CNAME `encuestas.v2aconsulting.com → mrivera1010.github.io` en el DNS de V2A y
+configure ese dominio en GitHub → Settings → Pages → Custom domain. Los enlaces quedan como
+`https://encuestas.v2aconsulting.com/pasajeros/b-banos`.

@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Encuestas de Limpieza SJU</title>
+<meta name="robots" content="noindex">
+<style>body{font-family:Montserrat,'Segoe UI',Arial,sans-serif;background:#F2F5F7;color:#1C2B4B;display:flex;min-height:100vh;align-items:center;justify-content:center;margin:0;padding:16px;text-align:center}</style>
+</head>
+<body><p>Abriendo la encuesta…</p>
+<script>
+// Friendly URLs → survey app. Examples:
+//   /pasajeros/concourse-b-banos   → ?s=p&loc=Concourse B · Baños
+//   /socios                        → ?s=b
+//   /personal  /limpieza           → ?s=e1  /  ?s=e2
+//   append /en for English:  /socios/en   /pasajeros/curbside/en
+(function(){
+  var SURVEY = { pasajeros:"p", passengers:"p", socios:"b", partners:"b", personal:"e1", staff:"e1", limpieza:"e2", cleaning:"e2" };
+  var AREA = { banos:"Baños", puertas:"Puertas", "food-court":"Food Court", counters:"Counters", equipaje:"Reclamo de equipaje",
+               curbside:"Curbside", estacionamiento:"Estacionamiento", pasillos:"Pasillos", salas:"Salas de espera" };
+  var ZONE = { a:"Concourse A", b:"Concourse B", c:"Concourse C", d:"Concourse D", terminal:"Terminal", publica:"Área pública", esteril:"Área estéril" };
+  var base = location.pathname.split("/").slice(0,2).join("/") + "/";    // /sju-encuestas-limpieza/
+  var parts = location.pathname.replace(base,"").split("/").filter(Boolean).map(decodeURIComponent);
+  var lang = ""; if (parts.length && /^(en|es)$/i.test(parts[parts.length-1])) lang = parts.pop().toLowerCase();
+  var s = SURVEY[(parts.shift()||"").toLowerCase()];
+  if (!s) { location.replace(base); return; }
+  var loc = "";
+  if (parts.length) {
+    var slug = parts.join("-").toLowerCase();
+    var m = slug.match(/^(concourse-)?([abcd]|terminal|publica|esteril)-(.+)$/);
+    if (m && ZONE[m[2]]) loc = ZONE[m[2]] + " · " + (AREA[m[3]] || pretty(m[3]));
+    else loc = AREA[slug] || pretty(slug);
+  }
+  function pretty(x){ return x.split("-").map(function(w){ return w.charAt(0).toUpperCase()+w.slice(1); }).join(" "); }
+  var q = "?s=" + s + (loc ? "&loc=" + encodeURIComponent(loc) : "") + (lang ? "&lang=" + lang : "");
+  location.replace(base + q);
+})();
+</script>
+</body>
+</html>
