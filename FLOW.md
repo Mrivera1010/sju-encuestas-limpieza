@@ -1,7 +1,8 @@
 # Flujo de Power Automate: captura de respuestas
 
 Objetivo: cada envío de la app llega por HTTP y se agrega como fila a la tabla `Respuestas` del archivo
-`Respuestas Encuestas Limpieza SJU.xlsx` (súbalo a la carpeta 04-Interviews/Surveys del sitio de Aerostar).
+`Respuestas Encuestas Limpieza SJU.xlsx`, que está en el OneDrive de Mariam: `OneDrive - V2A Consulting / Aerostar - Encuestas SJU /`.
+(Si prefieren tenerlo en el sitio de Aerostar, muévanlo a 04-Interviews/Surveys y ajusten el paso 3.)
 
 Requisito: el trigger "When an HTTP request is received" es un conector premium. Si la cuenta no lo tiene,
 la alternativa gratuita es una Azure Function (consumo) con la misma lógica; avíseme y la preparo.
@@ -33,8 +34,8 @@ la alternativa gratuita es una Azure Function (consumo) con la misma lógica; av
 2. **Compose** (nombre: `Body`) → Inputs: `json(string(triggerBody()))`
 
 3. **Excel Online (Business) → Add a row into a table**
-   - Location: SharePoint site *Aerostar - Cleaning Ops and Contracting Assessment*
-   - Document Library: Documents · File: `.../04-Interviews/Surveys/Respuestas Encuestas Limpieza SJU.xlsx` · Table: `Respuestas`
+   - Location: *OneDrive for Business* · Document Library: *OneDrive*
+   - File: `/Aerostar - Encuestas SJU/Respuestas Encuestas Limpieza SJU.xlsx` · Table: `Respuestas`
    - Cada columna con la expresión `outputs('Body')?['row']?['<Columna>']`, por ejemplo
      Fecha → `outputs('Body')?['row']?['Fecha']`, Q5B → `outputs('Body')?['row']?['Q5B']`.
 
