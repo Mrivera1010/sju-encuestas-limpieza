@@ -70,7 +70,7 @@ app.http("export", {
     return {
       status: 200,
       headers: { "Content-Type": "text/csv; charset=utf-8", "Content-Disposition": "inline; filename=respuestas-sju.csv" },
-      body: Buffer.from("﻿" + [header, ...lines].join("
+      body: Buffer.from("\uFEFF" + [header, ...lines].join("\r\n"), "utf8")
 "), "utf8")
 "), "utf8")
     };
