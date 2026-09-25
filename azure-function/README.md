@@ -10,11 +10,16 @@ Endpoints:
 
 Costo: plan Consumo, prácticamente $0 para este volumen (miles de respuestas).
 
-## Despliegue (portal de Azure, ~10 minutos, sin instalar nada)
+## Estado actual (25 sep 2026)
+Desplegada en la suscripción **ClaudeDev** (V2A Consulting), resource group `rg-sju-cleanops`, Function App `sju-encuestas-api`,
+storage `stsjuencuestas5570` (tabla `Respuestas`). Código publicado con run-from-package desde el blob `deployments/sju-function.zip`.
+La clave de exportación está en Azure Portal → Function App → Functions → export → Function Keys (no se guarda en este repo).
+
+## Despliegue desde cero (portal de Azure, ~10 minutos, sin instalar nada)
 
 1. **Crear la Function App**: portal.azure.com → Create a resource → Function App → *Consumption*.
    - Name: `sju-encuestas-api` (si está tomado, use otro y cámbielo en `.github/workflows/azure-function.yml`)
-   - Runtime stack: **Node.js**, versión **20** · OS: Linux · Region: East US (o la más cercana)
+   - Runtime stack: **Node.js**, versión **22** · OS: Linux · Region: East US (o la más cercana)
    - Storage: deje que cree una cuenta nueva. Create.
 2. **Publish profile**: en la Function App → Overview → *Get publish profile* (descarga un archivo `.PublishSettings`). Abra el archivo y copie todo su contenido.
 3. **Secreto en GitHub**: repo `Mrivera1010/sju-encuestas-limpieza` → Settings → Secrets and variables → Actions → New repository secret.
