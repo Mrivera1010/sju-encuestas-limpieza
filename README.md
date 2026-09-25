@@ -15,6 +15,10 @@ P1/P2 pasajeros, B1 socios comerciales, E1 personal del aeropuerto, E2 personal 
 - Agregue `&lang=en` para abrir en inglés.
 
 ## Captura de respuestas
+Dos opciones de backend (elija una):
+- **Power Automate** (`FLOW.md`): flujo HTTP → fila en Excel de OneDrive. Requiere el conector premium HTTP.
+- **Azure Function** (`azure-function/README.md`): función que guarda en Azure Table Storage y exporta CSV. Solo requiere una suscripción de Azure.
+
 Con `endpoint` vacío la app está en modo revisión: muestra "gracias" pero no guarda nada.
 Para capturar, ponga en `config.js` la URL de un endpoint que acepte `POST` JSON con CORS abierto, por ejemplo
 un flujo de Power Automate "When an HTTP request is received" que agregue una fila a una lista de SharePoint o a Excel.

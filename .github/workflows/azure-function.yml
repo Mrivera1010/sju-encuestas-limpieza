@@ -1,0 +1,25 @@
+# Deploys azure-function/ to the Function App named below whenever that folder changes on main.
+# Requires the repository secret AZURE_FUNCTIONAPP_PUBLISH_PROFILE (see azure-function/README.md).
+name: Deploy Azure Function
+on:
+  push:
+    branches: [main]
+    paths: ["azure-function/**"]
+  workflow_dispatch:
+env:
+  AZURE_FUNCTIONAPP_NAME: sju-encuestas-api
+  PACKAGE_PATH: azure-function
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: "20" }
+      - run: npm ci --omit=dev
+        working-directory: ${{ env.PACKAGE_PATH }}
+      - uses: Azure/functions-action@v1
+        with:
+          app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
+          package: ${{ env.PACKAGE_PATH }}
+          publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
