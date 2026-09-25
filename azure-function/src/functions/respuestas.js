@@ -22,7 +22,7 @@ app.http("respuestas", {
   handler: async (req, ctx) => {
     if (req.method === "OPTIONS") return { status: 204, headers: cors };
     let body;
-    try { body = JSON.parse(await req.text()); } catch { return { status: 400, headers: cors, jsonBody: { ok: false, error: "invalid JSON" } }; }
+    try { body = JSON.parse(new TextDecoder("utf-8").decode(await req.arrayBuffer())); } catch { return { status: 400, headers: cors, jsonBody: { ok: false, error: "invalid JSON" } }; }
     const row = body && body.row;
     if (!row || typeof row !== "object" || !body.survey) return { status: 400, headers: cors, jsonBody: { ok: false, error: "missing row" } };
 
