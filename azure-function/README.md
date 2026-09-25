@@ -5,13 +5,15 @@ almacenamiento que toda Function App ya trae, sin licencias ni permisos adiciona
 exporta todo a CSV para abrirlo o refrescarlo desde Excel.
 
 Endpoints:
-- `POST https://<app>.azurewebsites.net/api/respuestas`  ← se pega en `config.js` como `endpoint`
-- `GET  https://<app>.azurewebsites.net/api/export?code=<clave>`  ← CSV con todas las respuestas (`&survey=p` filtra por encuesta)
+- `POST https://encuestas-sju.azurewebsites.net/api/respuestas`  ← se pega en `config.js` como `endpoint`
+- `GET  https://encuestas-sju.azurewebsites.net/api/export?code=<clave>`  ← CSV con todas las respuestas (`&survey=p` filtra por encuesta)
 
 Costo: plan Consumo, prácticamente $0 para este volumen (miles de respuestas).
 
 ## Estado actual (25 sep 2026)
-Desplegada en la suscripción **ClaudeDev** (V2A Consulting), resource group `rg-sju-cleanops`, Function App `sju-encuestas-api`,
+Function App **`encuestas-sju`** (https://encuestas-sju.azurewebsites.net) sirve el sitio (carpeta `site/`, copiada de `index.html` y `404.html` del repo) y la API en `/api/...`; `host.json` quita el prefijo `/api` por defecto y las rutas lo declaran explícitamente. Paquete: blob `deployments/encuestas-sju.zip`. Al cambiar `index.html` o `404.html`, vuelva a copiarlos a `azure-function/site/` antes de empaquetar.
+
+Histórico: Desplegada en la suscripción **ClaudeDev** (V2A Consulting), resource group `rg-sju-cleanops`, Function App `sju-encuestas-api`,
 storage `stsjuencuestas5570` (tabla `Respuestas`). Código publicado con run-from-package desde el blob `deployments/sju-function.zip`.
 La clave de exportación está en Azure Portal → Function App → Functions → export → Function Keys (no se guarda en este repo).
 

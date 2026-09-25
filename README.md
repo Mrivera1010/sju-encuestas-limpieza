@@ -1,5 +1,8 @@
 # Encuestas de Limpieza SJU (static web app)
 
+**Enlace para el cliente: https://encuestas-sju.azurewebsites.net/encuestas** (la Function App sirve el sitio y la API desde el mismo host).
+La copia en GitHub Pages (https://mrivera1010.github.io/sju-encuestas-limpieza/) sigue funcionando y usa la misma API.
+
 Aplicación estática (HTML/CSS/JS, sin backend propio) con las cuatro encuestas de percepción de limpieza para SJU:
 P1/P2 pasajeros, B1 socios comerciales, E1 personal del aeropuerto, E2 personal de limpieza. Español / inglés.
 

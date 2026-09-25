@@ -7,7 +7,7 @@ on:
     paths: ["azure-function/**"]
   workflow_dispatch:
 env:
-  AZURE_FUNCTIONAPP_NAME: sju-encuestas-api
+  AZURE_FUNCTIONAPP_NAME: encuestas-sju
   PACKAGE_PATH: azure-function
 jobs:
   deploy:
