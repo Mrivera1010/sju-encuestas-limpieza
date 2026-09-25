@@ -1,0 +1,4 @@
+{
+  "navigationFallback": { "rewrite": "/index.html" },
+  "globalHeaders": { "cache-control": "no-cache" }
+}
