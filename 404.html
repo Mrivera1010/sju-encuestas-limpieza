@@ -11,6 +11,7 @@
 <script>
 // Friendly URLs → survey app. Examples:
 //   /pasajeros/concourse-b-banos   → ?s=p&loc=Concourse B · Baños
+//   /encuestas                     → landing page with all four surveys
 //   /socios                        → ?s=b
 //   /personal  /limpieza           → ?s=e1  /  ?s=e2
 //   append /en for English:  /socios/en   /pasajeros/curbside/en
@@ -22,7 +23,9 @@
   var base = location.pathname.split("/").slice(0,2).join("/") + "/";    // /sju-encuestas-limpieza/
   var parts = location.pathname.replace(base,"").split("/").filter(Boolean).map(decodeURIComponent);
   var lang = ""; if (parts.length && /^(en|es)$/i.test(parts[parts.length-1])) lang = parts.pop().toLowerCase();
-  var s = SURVEY[(parts.shift()||"").toLowerCase()];
+  var first = (parts.shift()||"").toLowerCase();
+  if (/^(encuestas|surveys|todas|all|inicio|home)?$/.test(first)) { location.replace(base); return; }   // landing page with all surveys
+  var s = SURVEY[first];
   if (!s) { location.replace(base); return; }
   var loc = "";
   if (parts.length) {

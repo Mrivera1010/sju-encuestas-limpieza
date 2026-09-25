@@ -45,6 +45,7 @@ SharePoint no sirve para esto porque no ejecuta archivos HTML.
 - `/pasajeros/b-banos` → Pasajeros, ubicación "Concourse B · Baños" · `/pasajeros/curbside` → "Curbside"
   Zonas: `a`, `b`, `c`, `d`, `terminal`, `publica`, `esteril` · Áreas: `banos`, `puertas`, `food-court`, `counters`, `equipaje`, `curbside`, `estacionamiento`, `pasillos`, `salas`
   Cualquier otro slug se convierte en texto (`/pasajeros/torre-norte` → "Torre Norte").
+- `/encuestas` → página inicial con las cuatro encuestas (para enviar al roster)
 - `/socios` · `/personal` · `/limpieza` → socios comerciales, personal del aeropuerto, personal de limpieza
 - Agregue `/en` al final para abrir en inglés: `/socios/en`, `/pasajeros/b-banos/en`
 
