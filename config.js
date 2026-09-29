@@ -3,5 +3,5 @@
 // Backend actual: Azure Function encuestas-sju (rg-sju-cleanops, suscripción ClaudeDev). Ver azure-function/README.md.
 window.SJU_CONFIG = {
   endpoint: "https://encuestas-sju.azurewebsites.net/api/respuestas",
-  appVersion: "1.0"
+  appVersion: "1.1"
 };
