@@ -10,7 +10,8 @@
 <body><p>Abriendo la encuesta…</p>
 <script>
 // Friendly URLs → survey app. Examples:
-//   /pasajeros/concourse-b-banos   → ?s=p&loc=Concourse B · Baños
+//   /pasajeros/b-banos  or  /pasajeros/terminal-b-banos   → ?s=p&loc=Terminal B · Baños
+//   /pasajeros/terminal-b  or  /pasajeros/b               → ?s=p&loc=Terminal B
 //   /encuestas                     → landing page with all four surveys
 //   /socios                        → ?s=b
 //   /personal  /limpieza           → ?s=e1  /  ?s=e2
@@ -19,7 +20,7 @@
   var SURVEY = { pasajeros:"p", passengers:"p", socios:"b", partners:"b", personal:"e1", staff:"e1", limpieza:"e2", cleaning:"e2" };
   var AREA = { banos:"Baños", puertas:"Puertas", "food-court":"Food Court", counters:"Counters", equipaje:"Reclamo de equipaje",
                curbside:"Curbside", estacionamiento:"Estacionamiento", pasillos:"Pasillos", salas:"Salas de espera" };
-  var ZONE = { a:"Concourse A", b:"Concourse B", c:"Concourse C", d:"Concourse D", terminal:"Terminal", publica:"Área pública", esteril:"Área estéril" };
+  var ZONE = { a:"Terminal A", b:"Terminal B", c:"Terminal C", d:"Terminal D", e:"Terminal E", terminal:"Terminal", publica:"Área pública", esteril:"Área estéril" };
   var seg = location.pathname.split("/")[1] || "";
   var base = seg === "sju-encuestas-limpieza" ? "/sju-encuestas-limpieza/" : "/";   // GitHub Pages subpath or root host
   var parts = location.pathname.replace(base,"").split("/").filter(Boolean).map(decodeURIComponent);
@@ -31,8 +32,10 @@
   var loc = "";
   if (parts.length) {
     var slug = parts.join("-").toLowerCase();
-    var m = slug.match(/^(concourse-)?([abcd]|terminal|publica|esteril)-(.+)$/);
-    if (m && ZONE[m[2]]) loc = ZONE[m[2]] + " · " + (AREA[m[3]] || pretty(m[3]));
+    slug = slug.replace(/^(concourse|terminal)-([abcde])(?=-|$)/, "$2");        // "terminal-b-banos" → "b-banos", "terminal-b" → "b"
+    var m = slug.match(/^([abcde]|terminal|publica|esteril)-(.+)$/);
+    if (m && ZONE[m[1]]) loc = ZONE[m[1]] + " · " + (AREA[m[2]] || pretty(m[2]));
+    else if (ZONE[slug]) loc = ZONE[slug];                                       // zone-only sign, e.g. /pasajeros/terminal-b
     else loc = AREA[slug] || pretty(slug);
   }
   function pretty(x){ return x.split("-").map(function(w){ return w.charAt(0).toUpperCase()+w.slice(1); }).join(" "); }
