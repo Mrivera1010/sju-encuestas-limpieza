@@ -48,6 +48,7 @@ button:focus-visible,a:focus-visible{outline:3px solid #2A8C86;outline-offset:2p
 
 /* survey */
 .sv-bar{max-width:420px;margin:0 auto;padding:16px 16px 10px;display:flex;align-items:center}
+.sv-bar[hidden]{display:none}
 .back{display:flex;align-items:center;gap:6px;background:none;border:0;padding:8px 0;font-weight:700;color:var(--teal);cursor:pointer;min-height:44px}
 .phone{max-width:420px;margin:0 auto 32px;background:var(--ground);border:1px solid var(--line);border-radius:22px;overflow:hidden}
 @media (max-width:460px){.phone{border:0;border-radius:0}.sv-bar{padding-inline:16px}}
@@ -159,21 +160,31 @@ const UI = {
   es:{one:"Seleccione una", all:"Seleccione todas las que apliquen", otherLbl:"Especifique:", otherPh:"Escriba aquí", rank:"Toque las opciones en orden, empezando por la más importante. La primera que toque será la #1. Ordene todas las opciones. Para corregir, toque de nuevo una opción.", ranked:"ordenadas", left:"Falta ordenar", leftOpts:"opciones", of:"de", answered:"respondidas", loc:"Ubicación registrada por el código QR",
       submit:"Enviar respuestas", sending:"Enviando…", thanks:"¡Gracias por su opinión!", thanksBody:"Sus respuestas fueron recibidas de forma anónima.", again:"Volver a empezar",
       none:"Responda al menos una pregunta antes de enviar.", fail:"No pudimos enviar sus respuestas. Revise su conexión e intente de nuevo.",
-      foot:"Anónima · Administrada por V2A Consulting para Aerostar", back:"Todas las encuestas"},
+      foot:"Anónima · Administrada por V2A Consulting para Aerostar", back:"Todas las encuestas",
+      alreadyT:"Ya respondió esta encuesta", alreadyB:"¡Gracias! Podrá volver a responderla a partir de mañana."},
   es_tu:{one:"Selecciona una", all:"Selecciona todas las que apliquen", otherLbl:"Especifica:", otherPh:"Escribe aquí", rank:"Toca las opciones en orden, empezando por la más importante. La primera que toques será la #1. Ordena todas las opciones. Para corregir, toca de nuevo una opción.", ranked:"ordenadas", left:"Falta ordenar", leftOpts:"opciones", of:"de", answered:"respondidas", loc:"Ubicación registrada por el código QR",
       submit:"Enviar respuestas", sending:"Enviando…", thanks:"¡Gracias por tu opinión!", thanksBody:"Tus respuestas fueron recibidas de forma anónima.", again:"Volver a empezar",
       none:"Responde al menos una pregunta antes de enviar.", fail:"No pudimos enviar tus respuestas. Revisa tu conexión e intenta de nuevo.",
-      foot:"Anónima · Administrada por V2A Consulting para Aerostar", back:"Todas las encuestas"},
+      foot:"Anónima · Administrada por V2A Consulting para Aerostar", back:"Todas las encuestas",
+      alreadyT:"Ya respondiste esta encuesta", alreadyB:"¡Gracias! Podrás volver a responderla a partir de mañana."},
   en:{one:"Select one", all:"Select all that apply", otherLbl:"Please specify:", otherPh:"Type here", rank:"Tap the options in order, starting with the most important. The first one you tap becomes #1. Rank all the options. To fix a choice, tap that option again.", ranked:"ranked", left:"Still to rank:", leftOpts:"options", of:"of", answered:"answered", loc:"Location recorded by the QR code",
       submit:"Submit answers", sending:"Sending…", thanks:"Thank you for your feedback!", thanksBody:"Your answers were received anonymously.", again:"Start over",
       none:"Answer at least one question before submitting.", fail:"We could not send your answers. Check your connection and try again.",
-      foot:"Anonymous · Run by V2A Consulting for Aerostar", back:"All surveys"}
+      foot:"Anonymous · Run by V2A Consulting for Aerostar", back:"All surveys",
+      alreadyT:"You already answered this survey", alreadyB:"Thank you! You can answer it again starting tomorrow."}
 };
 const CONFIG = window.SJU_CONFIG || {};
+/* ---------- one answer per device every 24 h (localStorage) + anonymous device id ---------- */
+const LOCK_MS = 24*60*60*1000;
+function store(){ try { return window.localStorage; } catch(e){ return null; } }
+function lockKey(k, l){ const slug = (l||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,""); return "sju_done_" + (k==="p" ? "pasajeros_" + (slug||"general") : k); }
+function isLocked(k, l){ const st=store(); if(!st) return false; const v=st.getItem(lockKey(k,l)); if(!v) return false; const t=Date.parse(v); if(isNaN(t)) return false; if(Date.now()-t < LOCK_MS) return true; st.removeItem(lockKey(k,l)); return false; }
+function setLock(k, l){ const st=store(); if(st) try{ st.setItem(lockKey(k,l), new Date().toISOString()); }catch(e){} }
+function deviceId(){ const st=store(); if(!st) return ""; let id=st.getItem("sju_device"); if(!id){ id=(Date.now().toString(36)+Math.random().toString(36).slice(2,10)); try{ st.setItem("sju_device",id); }catch(e){} } return id; }
 function ui(){ const m=DATA[cur]&&DATA[cur].meta; return (lang==="es"&&m&&m.tu)?UI.es_tu:UI[lang]; }
 const $ = (id)=>document.getElementById(id);
 const esc = (s)=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
-let cur=null, lang="es", ans={}, done=false, sending=false, err="", loc="", fromLanding=false;
+let cur=null, lang="es", ans={}, done=false, locked=false, sending=false, err="", loc="", fromLanding=false;
 
 /* ---------- routing: ?s=<survey>&loc=<area>&lang=<es|en> ---------- */
 function params(){ const q=new URLSearchParams(location.search); const h=location.hash.replace("#",""); return {s:q.get("s")||(DATA[h]?h:""), loc:q.get("loc")||"", lang:q.get("lang")||""}; }
@@ -206,6 +217,7 @@ function route(){
   if (DATA[p.s]) {
     if (cur!==p.s){cur=p.s; ans={}; done=false; err="";}
     loc=p.loc; if (p.lang==="en"||p.lang==="es") lang=p.lang;
+    locked = isLocked(cur, loc);
     $("svBar").hidden = !fromLanding; // QR and email visitors land on one survey only
     $("landing").hidden=true; $("survey").hidden=false; render(); window.scrollTo(0,0);
   } else { cur=null; $("survey").hidden=true; $("landing").hidden=false; window.scrollTo(0,0); }
@@ -229,25 +241,26 @@ function payload(){
     return {id:q.id, type:q.type, question:q.es, value, label, otherText: osel?txt:undefined};
   });
   const card=CARDS.find(c=>c.k===cur); const ts=new Date().toISOString();
-  const row={Fecha:ts, Encuesta:card.code, Audiencia:card.name, Ubicacion:loc, Idioma:lang, App:CONFIG.appVersion||"1.0"};
+  const row={Fecha:ts, Encuesta:card.code, Audiencia:card.name, Ubicacion:loc, Idioma:lang, App:CONFIG.appVersion||"1.0", Dispositivo:deviceId()};
   ["q1","q2","q3","q4","q5","q5b","q6","q7"].forEach(id=>{ const a=answers.find(x=>x.id===id); row[id.toUpperCase()] = !a||a.label===null?"":(Array.isArray(a.label)?a.label.join("; "):String(a.label)); });
   // ranking question: one column per option with its position (1 = most important) plus the full order as codes
   const rq=s.qs.find(q=>q.type==="rank"); const order=(rq&&Array.isArray(ans[rq.id]))?ans[rq.id]:[];
   RANK_CODES.forEach((c,oi)=>{ const k=order.indexOf(oi); row["rank_"+c]= k>=0?String(k+1):""; });
   row.rank_orden = order.map(oi=>RANK_CODES[oi]).join(">");
-  return {survey:cur, surveyName:card.name, location:loc, lang, submittedAt:ts, answers, row, app:CONFIG.appVersion||"1.0"};
+  return {survey:cur, surveyName:card.name, location:loc, lang, submittedAt:ts, device:deviceId(), answers, row, app:CONFIG.appVersion||"1.0"};
 }
 async function submit(){
   const s=DATA[cur]; const u=ui();
   const rq=s.qs.find(q=>q.type==="rank"); const left=rq?rq.opts.length-(ans[rq.id]||[]).length:0;
   if (rq && left>0 && left<rq.opts.length){ err=`${u.left} ${left} ${u.leftOpts}`; render(); return; }
   if (!s.qs.some(isAnswered)){ err=u.none; render(); return; }
-  if (!CONFIG.endpoint){ done=true; render(); window.scrollTo(0,0); return; }   // review mode: nothing is stored
+  if (isLocked(cur, loc)){ locked=true; render(); window.scrollTo(0,0); return; }
+  if (!CONFIG.endpoint){ setLock(cur, loc); done=true; render(); window.scrollTo(0,0); return; }   // review mode: nothing is stored
   sending=true; err=""; render();
   try{
     const r = await fetch(CONFIG.endpoint,{method:"POST",headers:{"Content-Type":"text/plain"},body:JSON.stringify(payload())});
     if(!r.ok) throw new Error("HTTP "+r.status);
-    done=true;
+    setLock(cur, loc); done=true;
   }catch(e){ err=u.fail; }
   sending=false; render(); window.scrollTo(0,0);
 }
@@ -259,9 +272,13 @@ function render(){
   document.documentElement.lang=lang;
   $("svKick").textContent=m.kicker[lang]; $("svTitle").textContent=m.title[lang]; $("svSub").textContent=m.subtitle[lang];
   $("backTxt").textContent=u.back;
+  const OK='<span class="ok"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg></span>';
   if (done){
-    $("svBody").innerHTML=`<div class="done"><span class="ok"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"></polyline></svg></span><h3>${u.thanks}</h3><p>${u.thanksBody}</p><button type="button" class="ghost" id="again">${u.again}</button></div>`;
-    $("again").onclick=()=>{ans={};done=false;err="";render();window.scrollTo(0,0);};
+    $("svBody").innerHTML=`<div class="done">${OK}<h3>${u.thanks}</h3><p>${u.thanksBody}</p></div>`;
+    return;
+  }
+  if (locked){
+    $("svBody").innerHTML=`<div class="done">${OK}<h3>${u.alreadyT}</h3><p>${u.alreadyB}</p></div>`;
     return;
   }
   const n=s.qs.filter(isAnswered).length;
